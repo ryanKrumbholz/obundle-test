@@ -36,6 +36,8 @@
             });
         </script>
 
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> 
+
         {{ getFontsCollection }}
         {{{stylesheet '/assets/css/theme.css'}}}
 
@@ -72,5 +74,70 @@
         </script>
 
         {{{footer.scripts}}}
+        <script>
+            $('.card-figure').hover(
+        function() {
+          var image = $(this).find('.card-image');
+          var newImg = image.attr('data-hoverimage');
+          var currentImg = image.attr('src');
+            if (newImg && newImg != '') image.attr('src', newImg);
+       }, function() {
+          var image = $(this).find('.card-image');
+          var newImg = image.attr('data-src');
+          var currentImg = image.attr('src');
+            if (newImg && newImg != '') image.attr('src', newImg);
+        }
+    );
+        $('.button-remove-all').hide();
+        $.get(`https://obundle-dev-test-store.mybigcommerce.com/api/storefront/carts?`, function(res) {
+            if(res.length > 0) {
+            $('.button-remove-all').show();
+        }
+        })
+        $('.button-add-all').click(
+            function() {
+                var settings = {
+            "async": true,
+            "crossDomain": true,
+            "url": "https://obundle-dev-test-store.mybigcommerce.com/api/storefront/carts?include=lineItems.digitalItems.options%2ClineItems.physicalItems.options",
+            "method": "POST",
+            "headers": {
+                "content-type": "application/json"
+            },
+            "processData": false,
+            "data": "{\"lineItems\":[{\"quantity\":1,\"productId\":112}]}"
+            }
+
+            $.ajax(settings).done(function (response) {
+                location.reload();
+                $('.button-remove-all').show();
+            });
+            
+            }
+
+        );
+        $('.button-remove-all').click(
+            function() {
+                var cartid;
+                $.get(`https://obundle-dev-test-store.mybigcommerce.com/api/storefront/carts?`, function(res) {
+                    cartid = res[0].id
+                    var settings = {
+                    "async": true,
+                    "crossDomain": true,
+                    "url": `https://obundle-dev-test-store.mybigcommerce.com/api/storefront/carts/${cartid}`,
+                    "method": "DELETE",
+                    "headers": {}
+                    }
+
+                $.ajax(settings).done(function (response) {
+                    location.reload();
+                    $('.button-remove-all').hide();
+                });
+                })
+                
+            }
+        );
+
+        </script>
     </body>
 </html>
